@@ -15,12 +15,16 @@ def make_prediction(number):
     prediction = prediction_list[number-1]
     print(prediction)
 
-while True:
-    pred_number = input(f"Введите число от 1 до {prediction_list_len} \n")
-    if not pred_number.isdigit():
-        print("Введите число, не расстраивайте птичку киви")
-    elif not 0 < int(pred_number) <= prediction_list_len:
-        print(f"Вы снова расстроили птичку киви. Введенное число не входит в интервал от 1 до {prediction_list_len}")
-    else:
-        make_prediction(pred_number)
-        break
+def process_input():
+	while True:
+	    pred_number = input(f"Введите число от 1 до {prediction_list_len} \n")
+	    if not pred_number.isdigit():
+	        print("Введите число, не расстраивайте птичку киви")
+	    elif not 0 < int(pred_number) <= prediction_list_len:
+	        print(f"Вы снова расстроили птичку киви. Введенное число не входит в интервал от 1 до {prediction_list_len}")
+	    else:
+	        return pred_number
+	        break
+
+pred_number = process_input()
+make_prediction(pred_number)
