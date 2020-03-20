@@ -1,53 +1,65 @@
 import config
+from predict import Predictions
 import requests
 import json
-from time import sleep
 
-global last_update_id
-last_update_id = 0
+from flask import Flask
+from flask import request
+from flask import jsonify
 
-prediction_list = config.prediction_list
+from flask_sslify import SSLify
 
-def get_updates():
-	bot_request = requests.get(f'{config.MAIN_URL}/getUpdates')
-	chat_info = bot_request.json()['result']
-	return chat_info
+app = Flask(__name__)
+predictions = Predictions()
 
-def get_message():
-	chat_info = get_updates()
-	last_chat_info = chat_info[-1]
-	current_update_id = last_chat_info['update_id']
+# sslify = SSLify(app)
 
-	global last_update_id
-	if last_update_id != current_update_id:
-		last_update_id = current_update_id
+def send_message(chat_id, text):
+	if type(text) == int:
+		sended_text = predictions.make_prediction(text)
+	else:
+		sended_text = text
 
-		chat_id = last_chat_info['message']['chat']['id']
-		message_text = last_chat_info['message']['text']
+	url = config.MAIN_URL + '/sendMessage'
+	payload = {"chat_id": str(chat_id), "text": sended_text}
+	headers = {'Content-type': 'application/json'}
+	
+	r = requests.post(url, json=payload, headers=headers)
 
-		message_info = {
-			'chat_id': chat_id,
-			'text': message_text
-		}
-		return message_info
+	return r
 
-	return None
+def convert_input(text):
+	if text == '/start':
+		message_text = f"Введите номер предсказания от 1 до {predictions.prediction_list_len}"
+		predictions.shuffle_predictions()
+	elif text =="Птичка киви хочет цифру":
+		message_text = text
+	else:
+		message_text = predictions.process_input(text)
 
+	return message_text
+	
 
-def send_message(answer):
-	chat_id = answer['chat_id']
-	text = answer['text']
-	message = requests.get(f'{config.MAIN_URL}/sendMessage?chat_id={chat_id}&text={text}')
-	# print(message.json())
+@app.route('/', methods=['POST', 'GET'])
+def index():
+	if request.method == 'POST':
+		r = request.get_json()
+		#print(json.dumps(r, indent = 4))
+		if 'text' in r['message']:
+			message_text = r['message']['text']
+		else:
+			message_text = "Птичка киви хочет цифру"
+		chat_id = r['message']['chat']['id']
+		
+		message_text = convert_input(message_text)
+		send_message(chat_id, message_text)
+
+		return "!", 200
+
+	return request.method
 
 def main():
-	while True:
-		answer = get_message()
-
-		if answer != None:
-			send_message(answer)
-		else:
-			continue
+	print('Main was runed')
 
 if __name__ == '__main__':
-	main()
+	app.run()
