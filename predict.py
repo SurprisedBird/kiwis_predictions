@@ -1,4 +1,5 @@
 import random
+import re
 
 class Predictions():
 
@@ -23,12 +24,16 @@ class Predictions():
         text = pred_number
         if not pred_number.isdigit():
             text = "Введите число, не расстраивайте птичку киви"
+            is_any_number = any(i.isdigit() for i in pred_number)
+            if is_any_number:
+                number = re.search(r'\d+', pred_number)[0]
+                number = int(text)
 
-        elif not 0 < int(pred_number) <= self.prediction_list_len:
+        if not 0 < int(number) <= self.prediction_list_len:
             text = f"Птички киви живут до 60-ти лет. И она навсегда запомнит, что введенное вами число не входит в интервал от 1 до {self.prediction_list_len}"
 
         else:
             text = int(text)
 
         return text
-
+        

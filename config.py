@@ -7,4 +7,4 @@ PREDICTION_3= "Крылышко"
 PREDICTION_4 = "Перья"
 
 prediction_list = [PREDICTION_1, PREDICTION_2, PREDICTION_3, PREDICTION_4]
-
+valid_text_list = ["Птичка киви хочет цифру", "Саша, не балуй"]

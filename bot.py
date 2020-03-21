@@ -32,7 +32,7 @@ def convert_input(text):
 	if text == '/start':
 		message_text = f"Введите номер предсказания от 1 до {predictions.prediction_list_len}"
 		predictions.shuffle_predictions()
-	elif text =="Птичка киви хочет цифру":
+	elif text in config.valid_text_list:
 		message_text = text
 	else:
 		message_text = predictions.process_input(text)
@@ -47,6 +47,7 @@ def index():
 		#print(json.dumps(r, indent = 4))
 		if 'text' in r['message']:
 			message_text = r['message']['text']
+		
 		else:
 			message_text = "Птичка киви хочет цифру"
 		chat_id = r['message']['chat']['id']
